@@ -4,22 +4,20 @@ In this practice you will:
 
 - Create a `useEffect` to change the color of the background based on an
   interval
+  - Then add functionality to change the interval delay based on user input
 - Create a `useEffect` to save the current [http status code][status-codes] in
   the browser's [`localStorage`][local-storage]
-- Create a `useEffect` to show an alert box when the [http status
-  code][status-codes] does not exist or when the user does not enter a code into
-  the input box
 
 ## Setup
 
 Click the `Download Project` button at the bottom of this page to go to the
 starter repo, then load the repo into [CodeSandbox].
 
-## Change Background Color
+## Part 1: Change background color
 
 Your task in this part of the practice is to change the background color of your
 app's `Cat Status` page every 5 seconds. The app currently sets the background
-using the `colors` array imported from __data.js__ along with a number stored in
+using the `colors` array imported from __data/data.js__ along with a number stored in
 the `colorNum` slice of state (see __Cat.js__). You simply need to use
 `setInterval` to update `colorNum` every 5 seconds.
 
@@ -45,116 +43,164 @@ whenever the `Cat` component unmounts.
 Your code should look similar to the code below:
 
 ```js
- useEffect(() => {
-    const colorInterval = setInterval(() => {
-      setColorNum(prevNum => ++prevNum % colors.length);
-    }, 5000);
+useEffect(() => {
+  const colorInterval = setInterval(() => {
+    setColorIdx((prevIdx) => {
+      const newIdx = ++prevIdx % colors.length;
+      return newIdx;
+    });
 
     return () => clearInterval(colorInterval);
-  }, []);
+  }, 5000);
+}, []);
 ```
 
-## Local Storage
+Remember, you must always use the clean up function when utilizing intervals
+in a `useEffect`. Otherwise your application can develop memory leaks!
+
+If you are doing this project on CodeSandbox, then the first two specs in the
+__01-Cat-backgroundColor.test.js__ when clicking on the __Tests__ tab
+should now pass.
+
+If you are doing this project locally and you run `npm test 01`, the first
+two specs in the __01-Cat-backgroundColor.test.js__ file should now pass.
+
+## Change interval delay
+
+With the current implementation the background color changes every 5 seconds.
+Next you are going modify the `useEffect` you just created to have the interval
+delay change based on the value of user submitted slice of state `delay`. This
+slice of state is modified by the provided form and submit handler.
+
+Take a moment to read the already provided `handleDelaySubmit` form submit
+function. The function checks the value of `delay` before it sets the value
+of the `delayChange` slice of state to `delay * 1000` (recall the
+`setInterval` delay is looking for milliseconds). It is this slice of state
+that the `setInterval` you created should take as an arg to programmatically
+change the delay.
+
+Modify the code that the `setInterval` delay should change any time the value
+of `delayChange` changes. Recall you will need that slice of state added to the
+dependency array to listen for updates.
+
+Your code should now look similar to the code below:
+
+```js
+useEffect(() => {
+  const colorInterval = setInterval(() => {
+    setColorIdx((prevIdx) => {
+      const newIdx = ++prevIdx % colors.length;
+      return newIdx;
+    });
+  }, delayChange);
+
+  return () => clearInterval(colorInterval);
+}, [delayChange]);
+```
+
+If you are doing this project on CodeSandbox, then all of the specs in the
+__01-Cat-backgroundColor.test.js__ when clicking on the __Tests__ tab
+should now pass.
+
+If you are doing this project locally and you run `npm test 01`, all of the
+specs in the __01-Cat-backgroundColor.test.js__ file should now pass.
+
+## Part 2: Local Storage
 
 [`localStorage`][local-storage] is another example of a side effect. It is a
 part of the [Window object][window-object] in the browser. It can be used to
-store trivial information that anyone is allowed to see. **You should never
-store personal or private information in `localStorage`.**
+store trivial information that anyone is allowed to see. __You should never
+store personal or private information in `localStorage`.__
 
-Your next goal is to set your `statusChange` slice of state to the value of the
-`catStatus` string. If there is no `catStatus` variable in your `localStorage`,
-the state should be set to `418`. Use `localStorage`'s `.getItem` method to
-retrieve the value of `catStatus`.
+Your next goal is to persist the value of `statusChange` in your `localStorage`.
+If there is a value for `statusCode` stored in `localStorage`, the component's
+`statusChange` state should be initialized to that value stored in
+`localStorage`. If there is no `statusCode` value stored in `localStorage`, then
+you should set the initial value of the `statusChange` to `418`.
+
+Reminder, to access the value of a key-value pair in `localStorage`, you can use
+the following syntax:
+
+```js
+localStorage.getItem(KEY); // => value
+```
+
+The key to store the cat status in your `localStorage` can be any value.
 
 Open up your browser--not sandbox--DevTools. Choose `Application` from the top
 bar. Look for `Local Storage` in the `Storage` section. You should see the
-address of your sandbox browser (**NOT** `https://codesandbox.io`). Right click
+address of your sandbox browser (__NOT__ `https://codesandbox.io`). Right click
 the address and choose `Clear`; this will clear out your app's `localStorage`.
 When you reload the page, you should see a picture of a cat with the status code
 `418 I'm a teapot`.
 
-Your code should look similar to the following code:
+If you are doing this project on CodeSandbox, then the first two specs in the
+__02-Cat-localStorage.test.js__ when clicking on the __Tests__ tab
+should now pass.
+
+If you are doing this project locally and you run `npm test 02`, the first
+two specs in the __02-Cat-localStorage.test.js__ file should now pass.
+
+Next, anytime the user sets a new `statusCode`, you should store that new
+`statusCode` in your `localStorage` to persist that `statusCode` change. Even
+if the user refreshes the browser, the `Cat` component should be initialized
+to the `statusCode` most recently set by the user.
+
+`useEffect` is the perfect place to do this. Create a `useEffect` that sets the
+`statusCode` in `localStorage` whenever the `statusCode` gets updated.
+
+Reminder, to set the value of a key-value pair in `localStorage`, you can use
+the following syntax:
 
 ```js
- const [statusChange, setStatusChange] = useState(
-    localStorage.getItem('catStatus') || '418'
-  );
+localStorage.setItem(KEY, newValue);
 ```
-
-Next, you want to set the `catStatus` key in your `localStorage` each time the
-`statusChange` slice of state changes. `useEffect` is the perfect place to do
-this. Create a `useEffect` that uses the `.setItem` method from `localStorage`
-to set the value of `catStatus` to the `statusChange` slice of state whenever
-the `statusChange` variable updates.
 
 With your DevTools still open and your `localStorage` clear, reload the sandbox
 browser page and notice that your `localStorage` is immediately set with a
-`catStatus` of `418`.
+`statusCode` of `418`.
 
 Type an existing status in the input box. Notice that `localStorage` updates
-each time you click the `Change Status` button. Also notice that, if the `status
-code` does not exist, it shows a `404` for the image. That is how [HTTP
+each time you click the `Change Status` button. Also notice that, if the
+`statusCode` does not exist, it shows a `404` for the image. That is how [HTTP
 Cats][http-cats] is built.
 
-If all is working the code you added should look similar to the code below:
+If you are doing this project on CodeSandbox, then all of the specs in the
+__02-Cat-localStorage.test.js__ when clicking on the __Tests__ tab
+should now pass.
 
-```js
-  useEffect(() => {
-    localStorage.setItem('catStatus', statusChange);
-  }, [statusChange]);
-```
+If you are doing this project locally and you run `npm test 02`, all of the
+specs in the __02-Cat-localStorage.test.js__ file should now pass.
 
-## Use Alert to Notify the User
+## __BONUS__ Reset status code after no activity
 
-Previously you saw that a `404` image shows when you put in a status code that
-is not a part of the API. It's better UX (User eXperience) to send an alert when
-a user submits a status that is empty or not included in the API. Once again,
-you can do this through a `useEffect`.
+As additional practice, implement a `useEffect` that resets the `statusCode`
+back to the default "418" after 10 minutes of inactivity (if the user has not
+submitted a new status code for 10 minutes). This should mean that the timer
+resets on any changes to the status code.
 
-Create a new `useEffect`. Inside the callback function, create a conditional to
-alert the user with `Please Enter A Code` when the user submits with an empty
-input box. You should also set the `statusChange` slice of state to `404` so
-that when you reload the page you do not break your code.
+For self testing you may use smaller durations to ensure you code is working
+correctly.
 
-Create another conditional for when the code does not exist in the API. You will
-use the `codes` array that is imported from __data.js__. This array contains all
-of the codes included in the API. If the code is not included, alert the user
-with a message containing the number of the code and a message. E.g., if the
-status input is 5000, the message should say: `Code 5000 might exist, but it is
-not a proper Cat Status code.` Once again, update the `statusChange` slice of
-state to `404`.
+You may have encountered such functionality on real websites, such as logging
+out a user after a duration of inactivity. You could implement that with a
+`useEffect` similar to the one you created to solve this problem!
 
-Now test again in your browser by clicking `Change Status` with an empty input
-box. Next, test with a number for which a `Cat Status` does not exist. In both
-cases you should see an alert message. Afterwards, `localStorage` should fill
-with a `404` value for `catStatus` which you can see in your DevTools.
+If you are doing this project on CodeSandbox, then all of the specs in the
+__03-BONUS-Cat-reset-statusCode.test.js__ when clicking on the __Tests__ tab
+should now pass.
 
-If you have succeeded, your code may look like the code below:
-
-```js
-  useEffect(() => {
-    if (statusChange === '') {
-      alert('Please Enter A Code');
-      setStatusChange('404');
-      return;
-    }
-    if (!codes.includes(Number(statusChange))) {
-      alert(
-        `Code ${statusChange} might exist, but it is not a proper Cat Status code.`
-      );
-      setStatusChange('404');
-    }
-  }, [statusChange]);
-```
+If you are doing this project locally and you run `npm test 03`, all of the
+specs in the __03-BONUS-Cat-reset-statusCode.test.js__ file should now pass.
 
 ## What you have learned
 
-**Congratulations!** In this practice you have learned how to use `useEffect` to
-handle these side effects:
+__Congratulations!__ In this practice you have learned how to use `useEffect` to
+handle:
 
 1. Applying a `setInterval` function to change the background color
 2. Storing and retrieving trivial data in `localStorage`
-3. `alert`ing the user when input is incorrect
+3. Listening to value changes in state to run side effects
 
 [http-cats]: https://http.cat/
 [status-codes]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -163,4 +209,4 @@ handle these side effects:
 [local-storage]: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
 [side-effects]: https://beta.reactjs.org/learn/keeping-components-pure#side-effects-unintended-consequences
 [window-object]: https://developer.mozilla.org/en-US/docs/Web/API/Window
-[CodeSandbox]: https://www.codesandbox.io
+[codesandbox]: https://www.codesandbox.io

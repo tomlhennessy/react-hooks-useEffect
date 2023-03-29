@@ -1,5 +1,4 @@
-export const colors = ['red', 'purple', 'green', 'orange', 'blue'];
-export const codes = [
+[
   100,
   101,
   102,
@@ -66,5 +65,5 @@ export const codes = [
   521,
   523,
   525,
-  599,
-];
+  599
+]
