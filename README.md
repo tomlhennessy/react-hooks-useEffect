@@ -205,7 +205,7 @@ handle:
 [http-cats]: https://http.cat/
 [status-codes]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 [set-interval]: https://developer.mozilla.org/en-US/docs/Web/API/setInterval
-[use-effect]: https://reactjs.org/docs/hooks-effect.html
+[use-effect]: https://react.dev/reference/react/useEffect
 [local-storage]: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
 [side-effects]: https://beta.reactjs.org/learn/keeping-components-pure#side-effects-unintended-consequences
 [window-object]: https://developer.mozilla.org/en-US/docs/Web/API/Window
