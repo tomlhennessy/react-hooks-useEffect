@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import COLORS from './data/colors.json';
@@ -11,6 +11,15 @@ const Cat = () => {
   const [statusChange, setStatusChange] = useState('418');
   const [delay, setDelay] = useState('');
   const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    const colorInterval = setInterval(() => {
+      setColorIdx((prevIdx) => (prevIdx + 1) % COLORS.length); // increment index, loop back to 0
+    }, delayChange); // use delayChange for interval delay
+
+    // cleanup function
+    return () => clearInterval(colorInterval);
+  }, [delayChange]); // add delaychange to dependency array
 
 
   const handleDelaySubmit = (e) => {
