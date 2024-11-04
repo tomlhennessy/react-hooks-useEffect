@@ -21,6 +21,26 @@ const Cat = () => {
     return () => clearInterval(colorInterval);
   }, [delayChange]); // add delaychange to dependency array
 
+  useEffect(() => {
+    const storedStatus = localStorage.getItem('catStatus');
+    if (storedStatus) {
+      setStatusChange(storedStatus); // initialise with stored value if available
+    }
+  }, []); // Empty dependency array to run only once on official render
+
+  useEffect(() => {
+    localStorage.setItem('catStatus', statusChange);
+  }, [statusChange]); // runs whenever statusChange changes
+
+  useEffect(() => {
+    const resetTimer = setTimeout(() => {
+      setStatusChange('418'); // reset to 418 after 10 minutes
+    }, 10 * 60 * 1000); // 10 minutes in ms
+
+    // cleanup to reset timer if statusChange updates
+    return () => clearTimeout(resetTimer);
+  }, [statusChange]); // run every time statusChange changes
+
 
   const handleDelaySubmit = (e) => {
     e.preventDefault();
